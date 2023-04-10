@@ -8,8 +8,8 @@ How do we do this?
 2. hf -> 4bit
     - using [GPTQ-for-LLaMa/llama.py](https://github.com/qwopqwop200/GPTQ-for-LLaMa/blob/triton/llama.py)
     `CUDA_VISIBLE_DEVICES=0 python llama.py ./llama-hf/llama-7b c4 --wbits 4 --true-sequential --act-order --groupsize 128 --save llama7b-4bit-128g.pt`
-3) and to ggml
-    - [llama.cpp/convert-pth-to-ggml.py](https://github.com/ggerganov/llama.cpp/blob/master/convert-pth-to-ggml.py)
+3. 4bit -> ggml
+    - [llama.cpp/convert-pth-to-ggml.py](https://github.com/ggerganov/llama.cpp/blob/master/convert-gptq-to-ggml.py)
 
 
 # TODO
@@ -17,7 +17,7 @@ How do we do this?
 - [x] lora -> hf
     - [ ] test this
 - [ ] hf -> 4bit
-- [ ] hf -> ggml
+- [ ] 4bit to -> ggml
 
 # setup env
 
