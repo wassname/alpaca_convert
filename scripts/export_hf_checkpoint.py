@@ -69,6 +69,14 @@ def main(BASE_MODEL, LORA_MODEL, output_path=None):
         base_model, output_path, state_dict=deloreanized_sd, max_shard_size="400MB"
     )
     print(f'output {output_path}')
+    LlamaTokenizer.save_pretrained(tokenizer, output_path)
+    # FIXME also save tokenizer
+    
+    from alpaca_convert.test import test_conversation
+    o = test_conversation(lora_model.float(), tokenizer)
+    print(o)
+    prompts_path = Path(output_path) / 'test_prompts.txt'
+    prompts_path.open('w').write(o)
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
