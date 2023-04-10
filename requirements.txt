@@ -1,12 +1,13 @@
-torch
+# torch
 accelerate
 bitsandbytes
 datasets
 sentencepiece
 safetensors
-flash-attn
+# flash-attn
 triton
 colorama
-git+https://github.com/huggingface/transformers.git
+git+https://github.com/huggingface/transformers.git@656e869
 git+https://github.com/sterlind/GPTQ-for-LLaMa.git@lora_4bit
-git+https://github.com/sterlind/peft.git
+# git+https://github.com/sterlind/peft.git@085c09d
+git+https://github.com/wassname/peft.git
