@@ -1,104 +1,52 @@
-# Alpaca Lora 4bit
-Made some adjust for the code in peft and gptq for llama, and make it possible for lora finetuning with a 4 bits base model. The same adjustment can be made for 2, 3 and 8 bits.
 
-## Quick start for running the chat UI
+My personal repo to convert models from Lora to huggingface/ggml/gptq 4bit so I can run them in normal text-webui and llama.cpp
 
-```
-git clone https://github.com/johnsmith0031/alpaca_lora_4bit.git
-cd alpaca_lora_4bit
-DOCCKER_BUILDKIT=1 docker build -t alpaca_lora_4bit . # build step can take 12 min
-docker run --gpus=all -p 7860:7860 alpaca_lora_4bit
-```
-Point your browser to http://localhost:7860
+How do we do this?
 
-## Results
-It's fast on a 3070 Ti mobile.  Uses 5-6 GB of GPU RAM.
+1. lora -> hf
+    - [tloen/alpaca-lora/export_hf_checkpoint.py](https://github.com/tloen/alpaca-lora/blob/main/export_hf_checkpoint.py)
+2. hf -> 4bit
+    - using [GPTQ-for-LLaMa/llama.py](https://github.com/qwopqwop200/GPTQ-for-LLaMa/blob/triton/llama.py)
+    `CUDA_VISIBLE_DEVICES=0 python llama.py ./llama-hf/llama-7b c4 --wbits 4 --true-sequential --act-order --groupsize 128 --save llama7b-4bit-128g.pt`
+3) and to ggml
+    - [llama.cpp/convert-pth-to-ggml.py](https://github.com/ggerganov/llama.cpp/blob/master/convert-pth-to-ggml.py)
 
-![](alpaca_lora_4bit_penguin_fact.gif)
 
-# Development
-* Install Manual by s4rduk4r: https://github.com/s4rduk4r/alpaca_lora_4bit_readme/blob/main/README.md (**NOTE:** don't use the install script, use the requirements.txt instead.)
-* Also Remember to create a venv if you do not want the packages be overwritten.
+# TODO
 
-# Update Logs
-* Resolved numerically unstable issue
-* Reconstruct fp16 matrix from 4bit data and call torch.matmul largely increased the inference speed.
-* Added install script for windows and linux.
-* Added Gradient Checkpointing. Now It can finetune 30b model 4bit on a single GPU with 24G VRAM with Gradient Checkpointing enabled. (finetune.py updated) (but would reduce training speed, so if having enough VRAM this option is not needed)
-* Added install manual by s4rduk4r
-* Added pip install support by sterlind, preparing to merge changes upstream
-* Added V2 model support (with groupsize, both inference + finetune)
-* Added some options on finetune: set default to use eos_token instead of padding, add resume_checkpoint to continue training
-* Added offload support. load_llama_model_4bit_low_ram_and_offload_to_cpu function can be used.
-* Added monkey patch for text generation webui for fixing initial eos token issue.
-* Added Flash attention support. (Use --flash-attention)
-* Added Triton backend to support model using groupsize and act-order. (Use --backend=triton)
-* Added g_idx support in cuda backend (need recompile cuda kernel)
+- [x] lora -> hf
+    - [ ] test this
+- [ ] hf -> 4bit
+- [ ] hf -> ggml
 
-# Requirements
-gptq-for-llama <br>
-peft<br>
-The specific version is inside requirements.txt<br>
+# setup env
 
-# Install
-~copy files from GPTQ-for-LLaMa into GPTQ-for-LLaMa path and re-compile cuda extension~<br>
-~copy files from peft/tuners/lora.py to peft path, replace it~<br>
+```sh
 
-**NOTE:** Install scripts are no longer needed! requirements.txt now pulls from forks with the necessary patches.
-
-```
-pip install -r requirements.txt
+conda create -n textgen3 python=3.10.9
+conda activate textgen3
+mamba install pytorch torchvision torchaudio pytorch-cuda=11.7 cudatoolkit-dev==11.7  cudatoolkit=11.7 -c pytorch -c nvidia  -c conda-forge 
 ```
 
-# Finetune
-~The same finetune script from https://github.com/tloen/alpaca-lora can be used.~<br>
+# download models
 
-After installation, this script can be used:
-GPTQv1:
+```sh
+# # base models.... FIXME
 
-```
-python finetune.py
-```
-or
-```
-GPTQ_VERSION=1 python finetune.py
+
+# download loras
+python scripts/download-model.py chansung/alpaca-lora-30b
+python scripts/download-model.py chansung/alpaca-lora-13b
+python scripts/download-model.py tloen/alpaca-lora-7b
 ```
 
-GPTQv2:
-```
-GPTQ_VERSION=2 python finetune.py
-```
+# convert models
 
-# Inference
-
-After installation, this script can be used:
-
-```
-python inference.py
+```sh
+python scripts/export_hf_checkpoint.py ./models/llama-7b-hf -l loras/tloen_alpaca-lora-7b
 ```
 
-# Text Generation Webui Monkey Patch
 
-Clone the latest version of text generation webui and copy all the files into ./text-generation-webui/
-```
-git clone https://github.com/oobabooga/text-generation-webui.git
-```
+# Links
 
-Open server.py and insert a line at the beginning
-```
-import custom_monkey_patch # apply monkey patch
-import gc
-import io
-...
-```
-
-Use the command to run
-
-```
-python server.py
-```
-
-# Flash Attention
-
-It seems that we can apply a monkey patch for llama model. To use it, simply download the file from [MonkeyPatch](https://github.com/lm-sys/FastChat/blob/daa9c11080ceced2bd52c3e0027e4f64b1512683/fastchat/train/llama_flash_attn_monkey_patch.py). And also, flash-attention is needed, and currently do not support pytorch 2.0.
-Just add --flash-attention to use it for finetuning.
+- https://github.com/s4rduk4r/alpaca_lora_4bit_readme/blob/main/README.md
