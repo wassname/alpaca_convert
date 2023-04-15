@@ -13,6 +13,7 @@ import alpaca_convert
 from alpaca_convert.test import test_conversation
 import argparse
 from pathlib import Path
+import torch
 from transformers import LlamaForCausalLM, LlamaTokenizer
 
 parser = argparse.ArgumentParser()
@@ -20,16 +21,25 @@ parser.add_argument('model', type=Path)
 "model to test e.g. `models/tloen_alpaca-lora-7b-delorified` "
 args = parser.parse_args()
 
-model = LlamaForCausalLM.from_pretrained(args.model)
+# https://huggingface.co/docs/transformers/v4.28.1/en/main_classes/quantization#transformers.BitsAndBytesConfig
+# GPU only!
+if torch.cuda.is_available():
+    model = LlamaForCausalLM.from_pretrained(args.model, device_map='auto', load_in_8bit=True)
+else:
+    # https://huggingface.co/docs/transformers/main_classes/model
+    model = LlamaForCausalLM.from_pretrained(low_cpu_mem_usage=True, torch_dtype=torch.bfloat16 if shared.args.bf16 else torch.float16)
+    model.half()
 tokenizer = LlamaTokenizer.from_pretrained(args.model)
-
-
+tokenizer.pad_token_id = 0
+tokenizer.padding_side = "left"
+    
 outs = test_conversation(model, tokenizer)
 print(outs)
 
-prompts_path = Path(output_path) / 'test_prompts2.txt'
-prompts_path.open('w').write(o)
+prompts_path = Path(args.model) / 'test_prompts2_onload.txt'
+prompts_path.open('w').write(outs)
 print(prompts_path)
+
 
 # from transformers import pipeline, Conversation, ConversationalPipeline
 # # https://huggingface.co/tasks/conversational
