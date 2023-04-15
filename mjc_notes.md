@@ -22,36 +22,80 @@ How do we do this?
 
 ```sh
 
-conda create -n textgen3 python=3.10.9
-conda activate textgen3
-mamba install pytorch torchvision torchaudio pytorch-cuda=11.7 cudatoolkit-dev==11.7  cudatoolkit=11.7 -c pytorch -c nvidia  -c conda-forge 
+conda create -n textgen4 python=3.10.9 -y
+conda activate textgen4
+mamba install pytorch torchvision torchaudio pytorch-cuda=11.7 cudatoolkit-dev==11.7  cudatoolkit=11.7 -c pytorch -c nvidia  -c conda-forge  -y
+pip install -r requirements.txt
+pip install git+https://github.com/sterlind/GPTQ-for-LLaMa.git@lora_4bit
 ```
 
 # download models
 
 ```sh
 # # base models.... FIXME
+python scripts/download-model.py decapoda-research/llama-7b-hf
+python scripts/download-model.py decapoda-research/llama-13b-hf
+python scripts/download-model.py decapoda-research/llama-30b-hf
+python scripts/download-model.py decapoda-research/llama-65b-hf
+
+# 4bit ones if usefull?
+python scripts/download-model.py decapoda-research/llama-7b-hf-int4
+python scripts/download-model.py decapoda-research/llama-13b-hf-int4
+python scripts/download-model.py decapoda-research/llama-30b-hf-int4
+wget https://huggingface.co/maderix/llama-65b-4bit/resolve/main/llama30b-4bit.pt ./models/decapoda-research_llama-30b-hf-int4/llama-30b-4bit.pt
+# because the last repo is mostly empty we will combine...
+python scripts/download-model.py decapoda-research/llama-65b-hf-int4
+wget https://huggingface.co/maderix/llama-65b-4bit/resolve/main/llama65b-4bit.pt ./models/decapoda-research_llama-65b-hf-int4/llama-65b-4bit.pt
+cp models/decapoda-research_llama-7b-hf/*.json models/decapoda-research_llama-7b-hf-int4
+
+# oh! you need to replace LLaMATokenizer with LlamaTokenizer in all model json files
+
+# usefull?
 # wget https://huggingface.co/maderix/llama-65b-4bit/resolve/main/llama30b-4bit.pt ../llama-30b-4bit.pt
 # wget https://huggingface.co/maderix/llama-65b-4bit/resolve/main/llama13b-4bit.pt ../llama-13b-4bit.pt
 # wget https://huggingface.co/maderix/llama-65b-4bit/resolve/main/llama7b-4bit.pt ../llama-7b-4bit.pt
-# cools models:
-# - https://huggingface.co/jordiclive/gpt4all-alpaca-oa-codealpaca-lora-13b
-# - https://huggingface.co/Black-Engineer/oasst-llama30b-ggml-q4
-# - https://huggingface.co/chansung/alpaca-lora-30b
 
 # download loras
 python scripts/download-model.py chansung/alpaca-lora-30b
 python scripts/download-model.py chansung/alpaca-lora-13b
 python scripts/download-model.py tloen/alpaca-lora-7b
+python scripts/download-model.py gpt4all-alpaca-oa-codealpaca-lora-13b
+python scripts/download-model.py Black-Engineer/oasst-llama30b-ggml-q4
 ```
 
 # convert models
 
 ```sh
+# download
+python scripts/download-model.py tloen/alpaca-lora-7b
+python scripts/download-model.py decapoda-research/llama-7b-hf
+# convert
+python scripts/export_hf_checkpoint.py ./models/decapoda-research_llama-13b-hf -l loras/chansung_alpaca-lora-13b
+
+# or from int4?
+python -m pdb scripts/export_hf_checkpoint_int4.py ./models/decapoda-research_llama-7b-hf ./models/decapoda-research_llama-7b-hf-int4/llama-7b-4bit.pt -l ./loras/tloen_alpaca-lora-7b
+
+
+
 python scripts/export_hf_checkpoint.py ./models/llama-7b-hf -l loras/tloen_alpaca-lora-7b
+python scripts/export_hf_checkpoint.py ./models/llama-13b-hf -l loras/chansung_alpaca-lora-13b # crash! 50GB+ needed
+python scripts/export_hf_checkpoint.py ./models/llama-30b-hf -l loras/chansung_alpaca-lora-30b
+python scripts/export_hf_checkpoint.py ./models/llama-60b-hf -l loras/chansung_alpaca-lora-60b
+# test
+python scripts/test_01_delora.py models/tloen_alpaca-lora-7b-delorified
 ```
+
 
 
 # Links
 
 - https://github.com/s4rduk4r/alpaca_lora_4bit_readme/blob/main/README.md
+
+
+# 2023-04-13 16:44:11
+
+OK I need lots more mem... copy to ec2
+
+```sh
+rsync -a . alpaca:/home/ubuntu/alpaca_convert_mjc --exclude=models
+```
