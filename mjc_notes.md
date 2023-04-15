@@ -37,23 +37,7 @@ python scripts/download-model.py decapoda-research/llama-7b-hf
 python scripts/download-model.py decapoda-research/llama-13b-hf
 python scripts/download-model.py decapoda-research/llama-30b-hf
 python scripts/download-model.py decapoda-research/llama-65b-hf
-
-# 4bit ones if usefull?
-python scripts/download-model.py decapoda-research/llama-7b-hf-int4
-python scripts/download-model.py decapoda-research/llama-13b-hf-int4
-python scripts/download-model.py decapoda-research/llama-30b-hf-int4
-wget https://huggingface.co/maderix/llama-65b-4bit/resolve/main/llama30b-4bit.pt ./models/decapoda-research_llama-30b-hf-int4/llama-30b-4bit.pt
-# because the last repo is mostly empty we will combine...
-python scripts/download-model.py decapoda-research/llama-65b-hf-int4
-wget https://huggingface.co/maderix/llama-65b-4bit/resolve/main/llama65b-4bit.pt ./models/decapoda-research_llama-65b-hf-int4/llama-65b-4bit.pt
-cp models/decapoda-research_llama-7b-hf/*.json models/decapoda-research_llama-7b-hf-int4
-
 # oh! you need to replace LLaMATokenizer with LlamaTokenizer in all model json files
-
-# usefull?
-# wget https://huggingface.co/maderix/llama-65b-4bit/resolve/main/llama30b-4bit.pt ../llama-30b-4bit.pt
-# wget https://huggingface.co/maderix/llama-65b-4bit/resolve/main/llama13b-4bit.pt ../llama-13b-4bit.pt
-# wget https://huggingface.co/maderix/llama-65b-4bit/resolve/main/llama7b-4bit.pt ../llama-7b-4bit.pt
 
 # download loras
 python scripts/download-model.py chansung/alpaca-lora-30b
@@ -69,20 +53,21 @@ python scripts/download-model.py Black-Engineer/oasst-llama30b-ggml-q4
 # download
 python scripts/download-model.py tloen/alpaca-lora-7b
 python scripts/download-model.py decapoda-research/llama-7b-hf
+
 # convert
-python scripts/export_hf_checkpoint.py ./models/decapoda-research_llama-13b-hf -l loras/chansung_alpaca-lora-13b
+python scripts/export_hf_checkpoint.py ./models/decapoda-research_llama-7b-hf -l loras/tloen_alpaca-lora-7b
+python scripts/export_hf_checkpoint.py ./models/decapoda-research_llama-13b-hf -l loras/chansung_alpaca-lora-13b # crash! 50GB+ needed
+python scripts/export_hf_checkpoint.py ./models/decapoda-research_llama-30b-hf -l loras/chansung_alpaca-lora-30b
+python scripts/export_hf_checkpoint.py ./models/decapoda-research_llama-60b-hf -l loras/chansung_alpaca-lora-60b
 
-# or from int4?
-python -m pdb scripts/export_hf_checkpoint_int4.py ./models/decapoda-research_llama-7b-hf ./models/decapoda-research_llama-7b-hf-int4/llama-7b-4bit.pt -l ./loras/tloen_alpaca-lora-7b
-
-
-
-python scripts/export_hf_checkpoint.py ./models/llama-7b-hf -l loras/tloen_alpaca-lora-7b
-python scripts/export_hf_checkpoint.py ./models/llama-13b-hf -l loras/chansung_alpaca-lora-13b # crash! 50GB+ needed
-python scripts/export_hf_checkpoint.py ./models/llama-30b-hf -l loras/chansung_alpaca-lora-30b
-python scripts/export_hf_checkpoint.py ./models/llama-60b-hf -l loras/chansung_alpaca-lora-60b
 # test
 python scripts/test_01_delora.py models/tloen_alpaca-lora-7b-delorified
+python scripts/test_01_delora.py models/chansung_alpaca-lora-13b-delorified
+# now compare what was generated during conversion `test_prompts.txt`, to the loaded version
+
+# 4bit...
+
+# ggml conversion...
 ```
 
 

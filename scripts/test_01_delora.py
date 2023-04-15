@@ -27,6 +27,10 @@ tokenizer = LlamaTokenizer.from_pretrained(args.model)
 outs = test_conversation(model, tokenizer)
 print(outs)
 
+prompts_path = Path(output_path) / 'test_prompts2.txt'
+prompts_path.open('w').write(o)
+print(prompts_path)
+
 # from transformers import pipeline, Conversation, ConversationalPipeline
 # # https://huggingface.co/tasks/conversational
 # prompts = [
