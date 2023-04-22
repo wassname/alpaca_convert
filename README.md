@@ -12,12 +12,14 @@ How do we do this?
     - [llama.cpp/convert-pth-to-ggml.py](https://github.com/ggerganov/llama.cpp/blob/master/convert-gptq-to-ggml.py)
 
 
+
 # TODO
 
 - [x] lora -> hf
     - [ ] test this
 - [ ] hf -> 4bit
 - [ ] 4bit to -> ggml
+- [ ] test perplexity on llama and alpaca type prompts too! maybe use eluther evals
 
 # setup env
 
