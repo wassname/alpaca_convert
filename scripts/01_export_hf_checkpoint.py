@@ -14,17 +14,6 @@ def main(BASE_MODEL, LORA_MODEL, output_path=None):
     if output_path is None:
         output_path = 'models/' + LORA_MODEL.split('/')[-1] + '-delorified'
 
-    # BASE_MODEL = os.environ.get("BASE_MODEL", None)
-    # assert (
-    #     BASE_MODEL
-    # ), "Please specify a value for BASE_MODEL environment variable, e.g. `export BASE_MODEL=huggyllama/llama-7b`"  # noqa: E501
-
-
-    # LORA_MODEL = os.environ.get("BASE_MODEL", None)
-    # assert (
-    #     LORA_MODEL
-    # ), "Please specify a value for LORA_MODEL environment variable, e.g. `export BASE_MODEL=tloen/alpaca-lora-7b`"  # noqa: E501
-
     tokenizer = LlamaTokenizer.from_pretrained(BASE_MODEL)
 
     base_model = LlamaForCausalLM.from_pretrained(
@@ -33,8 +22,6 @@ def main(BASE_MODEL, LORA_MODEL, output_path=None):
         torch_dtype=torch.float16,
         device_map={"": "cpu"},
     )
-    
-    # TODO or load 4 bit?
 
     first_weight = base_model.model.layers[0].self_attn.q_proj.weight
     first_weight_old = first_weight.clone()
@@ -70,9 +57,8 @@ def main(BASE_MODEL, LORA_MODEL, output_path=None):
     LlamaForCausalLM.save_pretrained(
         base_model, output_path, state_dict=deloreanized_sd, max_shard_size="400MB"
     )
-    print(f'output {output_path}')
     LlamaTokenizer.save_pretrained(tokenizer, output_path)
-    # FIXME also save tokenizer
+    print(f'output {output_path}')
     
     from alpaca_convert.test import test_conversation
     o = test_conversation(lora_model.float(), tokenizer)
@@ -83,10 +69,10 @@ def main(BASE_MODEL, LORA_MODEL, output_path=None):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('model', type=str)
-    parser.add_argument('-l', '--lora', type=str, default='main', help='Lora repo or path e.g. `tloen/alpaca-lora-7b`')
+    parser.add_argument('model', type=str, help='Huggingface model e.g. `./models/decapoda-research_llama-7b-hf`')
+    parser.add_argument('-l', '--lora', type=str, default='main', help='Lora repo or path e.g. `tloen/alpaca-lora-7b` or `./loras/tloen_alpaca-lora-7b`')
     parser.add_argument('-o', '--output', type=Path, default=None)
-    "e.g. ./hf_ckpt. default will be lora name"
+    "if None default will be `./models/tloen_alpaca-lora-7b_delorafied` or similar"
     args = parser.parse_args()
     main(args.model, args.lora, args.output)
 

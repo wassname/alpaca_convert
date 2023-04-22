@@ -55,10 +55,10 @@ python scripts/download-model.py tloen/alpaca-lora-7b
 python scripts/download-model.py decapoda-research/llama-7b-hf
 
 # convert
-python scripts/export_hf_checkpoint.py ./models/decapoda-research_llama-7b-hf -l loras/tloen_alpaca-lora-7b
-python scripts/export_hf_checkpoint.py ./models/decapoda-research_llama-13b-hf -l loras/chansung_alpaca-lora-13b # crash! 50GB+ needed
-python scripts/export_hf_checkpoint.py ./models/decapoda-research_llama-30b-hf -l loras/chansung_alpaca-lora-30b
-python scripts/export_hf_checkpoint.py ./models/decapoda-research_llama-60b-hf -l loras/chansung_alpaca-lora-60b
+python scripts/01_export_hf_checkpoint.py ./models/decapoda-research_llama-7b-hf -l loras/tloen_alpaca-lora-7b
+python scripts/01_export_hf_checkpoint.py ./models/decapoda-research_llama-13b-hf -l loras/chansung_alpaca-lora-13b # crash! 50GB+ needed
+python scripts/01_export_hf_checkpoint.py ./models/decapoda-research_llama-30b-hf -l loras/chansung_alpaca-lora-30b
+python scripts/01_export_hf_checkpoint.py ./models/decapoda-research_llama-60b-hf -l loras/chansung_alpaca-lora-60b
 
 # test
 python scripts/test_01_delora.py models/tloen_alpaca-lora-7b-delorified
@@ -66,6 +66,7 @@ python scripts/test_01_delora.py models/chansung_alpaca-lora-13b-delorified
 # now compare what was generated during conversion `test_prompts.txt`, to the loaded version
 
 # 4bit...
+CUDA_VISIBLE_DEVICES=0 python llama.py ./models/tloen_alpaca-lora-7b-delorified c4 --wbits 4 --true-sequential --act-order --groupsize 128 --save_safetensors ./models/tloen_alpaca-lora-7b-delorified/llama7b-4bit-128g.safetensors
 
 # ggml conversion...
 ```
