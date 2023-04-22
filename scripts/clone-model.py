@@ -35,4 +35,6 @@ if __name__ == '__main__':
     assert result.returncode==0, 'git lfs should be installed'
         
     print(f'cloning "{repo}" to "{dest}"')
-    Repo.clone_from(repo, dest, multi_options=['--depth=1'])
+    Repo.clone_from(repo, dest, multi_options=['--depth=1', '--branch=main', '--filter=blob:none'])
+    
+    # FIXME it clones the git folder that has a huge size, it seems to have the old git lfs objects. so it's double the size. I can't seem to stop that

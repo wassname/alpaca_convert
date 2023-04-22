@@ -33,10 +33,10 @@ pip install git+https://github.com/sterlind/GPTQ-for-LLaMa.git@lora_4bit
 
 ```sh
 # # base models.... FIXME
-python scripts/clone-model.py decapoda-research/llama-7b-hf
-python scripts/clone-model.py decapoda-research/llama-13b-hf
-python scripts/clone-model.py decapoda-research/llama-30b-hf
-python scripts/clone-model.py decapoda-research/llama-65b-hf
+python scripts/download-model.py decapoda-research/llama-7b-hf
+python scripts/download-model.py decapoda-research/llama-13b-hf
+python scripts/download-model.py decapoda-research/llama-30b-hf
+python scripts/download-model.py decapoda-research/llama-65b-hf
 # oh! you need to replace LLaMATokenizer with LlamaTokenizer in all model json files
 
 # download loras
