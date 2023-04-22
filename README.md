@@ -35,21 +35,23 @@ pip install -e .
 # download models
 
 ```sh
-# # base models.... FIXME
+huggingface-cli login
 
+# download base models
+python scripts/download-model.py decapoda-research/llama-7b-hf
+# python scripts/download-model.py decapoda-research/llama-13b-hf
+# python scripts/download-model.py decapoda-research/llama-30b-hf
 
 # download loras
-python scripts/download-model.py chansung/alpaca-lora-30b
-python scripts/download-model.py chansung/alpaca-lora-13b
 python scripts/download-model.py tloen/alpaca-lora-7b
+# python scripts/download-model.py chansung/alpaca-lora-13b
+# python scripts/download-model.py chansung/alpaca-lora-30b
 ```
 
 # convert models
 
 ```sh
-# download
-python scripts/download-model.py tloen/alpaca-lora-7b
-python scripts/download-model.py decapoda-research/llama-7b-hf
+
 # convert
 python scripts/export_hf_checkpoint.py ./data/models/llama-7b-hf -l ./data/loras/tloen_alpaca-lora-7b
 # test
