@@ -164,7 +164,7 @@ def get_download_links_from_huggingface(model, branch, text_only=False):
 
 def get_output_folder(model, branch, is_lora, base_folder=None):
     if base_folder is None:
-        base_folder = 'models' if not is_lora else 'loras'
+        base_folder = 'data/models' if not is_lora else 'data/loras'
 
     output_folder = f"{'_'.join(model.split('/')[-2:])}"
     if branch != 'main':

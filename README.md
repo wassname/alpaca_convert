@@ -51,7 +51,7 @@ python scripts/download-model.py tloen/alpaca-lora-7b
 python scripts/download-model.py tloen/alpaca-lora-7b
 python scripts/download-model.py decapoda-research/llama-7b-hf
 # convert
-python scripts/export_hf_checkpoint.py ./models/llama-7b-hf -l loras/tloen_alpaca-lora-7b
+python scripts/export_hf_checkpoint.py ./data/models/llama-7b-hf -l ./data/loras/tloen_alpaca-lora-7b
 # test
 python scripts/test_01_delora.py models/tloen_alpaca-lora-7b-delorified
 ```
